@@ -1,6 +1,8 @@
 # offline-geo-from-ip
 
-Get geo location information from an IP address. This is a forked version of [geo-from-ip](https://github.com/VikramTiwari/geo-from-ip) modified to include a local database.
+Get geo location information from an IP address without an internet connection.
+
+This is a forked version of [geo-from-ip](https://github.com/VikramTiwari/geo-from-ip) modified to include a local database.
 
 ## Installation
 
