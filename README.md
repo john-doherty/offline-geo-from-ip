@@ -2,7 +2,7 @@
 
 Get geo location information from an IP address without an internet connection.
 
-This is a forked version of [geo-from-ip](https://github.com/VikramTiwari/geo-from-ip) modified to include a local database.
+_This is a modified version of [geo-from-ip](https://github.com/VikramTiwari/geo-from-ip) that includes a local database_.
 
 ## Installation
 
@@ -18,18 +18,22 @@ var geoIP = require('offline-geo-from-ip');
 console.log(geoIP.allData('199.188.195.120'));
 
 /*
-{ code: { state: 'CA', country: 'US', continent: 'NA' },
+{
+  code: { state: 'CA', country: 'US', continent: 'NA' },
   city: 'San Francisco',
   state: 'California',
   country: 'United States',
   continent: 'North America',
   postal: '94103',
   location:
-   { accuracy_radius: 10,
-     latitude: 37.7758,
-     longitude: -122.4128,
-     metro_code: 807,
-     time_zone: 'America/Los_Angeles' } }
+  {
+    accuracy_radius: 10,
+    latitude: 37.7758,
+    longitude: -122.4128,
+    metro_code: 807,
+    time_zone: 'America/Los_Angeles'
+  }
+}
  */
 ```
 
