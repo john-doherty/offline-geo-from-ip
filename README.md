@@ -1,17 +1,17 @@
 # offline-geo-from-ip
 
-Get geo location information from an IP address _(modified version of [geo-from-ip](https://github.com/VikramTiwari/geo-from-ip) to include a local database)_.
+Get geo location information from an IP address. This is a forked version of [geo-from-ip](https://github.com/VikramTiwari/geo-from-ip) modified to include a local database.
 
 ## Installation
 
 ```sh
-npm install --save geo-from-ip
+npm install --save offline-geo-from-ip
 ```
 
 ## Usage
 
 ```javascript
-var geoIP = require('geo-from-ip');
+var geoIP = require('offline-geo-from-ip');
 
 console.log(geoIP.allData('199.188.195.120'));
 
