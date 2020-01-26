@@ -1,0 +1,42 @@
+{
+  "name": "offline-geo-from-ip",
+  "description": "Get geo location information from an IP address",
+  "version": "1.0.0",
+  "main": "lib/offline-geo-from-ip.js",
+  "scripts": {
+    "test": "DEBUG=geo-from-ip:* jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/john-doherty/offline-geo-from-ip.git"
+  },
+  "bugs": {
+    "url": "https://github.com/john-doherty/offline-geo-from-ip/issues"
+  },
+  "keywords": [
+    "geo",
+    "geo from ip",
+    "ip to geo",
+    "ip to location"
+  ],
+  "author": "John Doherty <contact@johndoherty.info> (www.johndoherty.info)",
+  "license": "MIT",
+  "engines": {
+    "node": ">=10"
+  },
+  "standard": {
+    "globals": [
+      "describe",
+      "expect",
+      "test"
+    ]
+  },
+  "dependencies": {
+    "debug": "^4.1.1",
+    "maxmind-db-reader": "^0.2.1"
+  },
+  "devDependencies": {
+    "chance": "^1.1.4",
+    "jest": "^24.9.0"
+  }
+}
