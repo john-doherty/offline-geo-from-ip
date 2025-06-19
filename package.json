@@ -4,7 +4,7 @@
   "version": "1.0.1",
   "main": "lib/offline-geo-from-ip.js",
   "scripts": {
-    "test": "DEBUG=geo-from-ip:* jest"
+    "test": "NODE_ENV=test node_modules/.bin/jasmine --config=tests/jasmine/config.json"
   },
   "repository": {
     "type": "git",
@@ -32,11 +32,12 @@
     ]
   },
   "dependencies": {
-    "debug": "^4.1.1",
     "maxmind-db-reader": "^0.2.1"
   },
   "devDependencies": {
     "chance": "^1.1.4",
-    "jest": "^24.9.0"
+    "jest": "^24.9.0",
+    "jasmine": "^4.0.2",
+    "jasmine-console-reporter": "^3.1.0"
   }
 }
