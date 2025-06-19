@@ -1,8 +1,8 @@
 {
   "name": "offline-geo-from-ip",
   "description": "Get geo location information from an IP address",
-  "version": "1.0.1",
-  "main": "lib/offline-geo-from-ip.js",
+  "version": "1.1.0",
+  "main": "index.js",
   "scripts": {
     "test": "NODE_ENV=test node_modules/.bin/jasmine --config=tests/jasmine/config.json"
   },
