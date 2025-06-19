@@ -1,7 +1,7 @@
 const geo = require('../index.js')
 
 const testCases = [
-    { ip: '134.209.184.245', label: 'Orca Scan'},
+    { ip: '134.209.184.245', label: 'OrcaScan.com'},
     { ip: '212.145.34.191', label: 'Regus Malaga'},
     { ip: '134.209.54.235', label: 'Digital Ocean London' }
 ];
