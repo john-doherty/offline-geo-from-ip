@@ -1,40 +1,69 @@
+const fs = require('fs');
 const path = require('path');
-const mmdbreader = require('maxmind-db-reader');
+const maxmind = require('maxmind');
 
-const city = mmdbreader.openSync(
-    path.resolve(__dirname, './database/geolite2-city.mmdb')
-);
+// Load the local GeoLite2 database file into memory once when the module is first required.
+// This is a synchronous read — fast on startup and means no file I/O on every lookup.
+const dbPath = path.resolve(__dirname, './database/geolite2-city.mmdb');
+const db = new maxmind.Reader(fs.readFileSync(dbPath));
 
 /**
- * Attempts to get GeoLite2 data for a given IP, optionally allowing fallback for city info
- * @param {string} ip - The IP address to look up
- * @returns {Object} result - Structured location data (city, state, country, etc.)
+ * @typedef {Object} GeoLocation
+ * @property {number} latitude - Approximate latitude
+ * @property {number} longitude - Approximate longitude
+ * @property {number} accuracy_radius - Accuracy radius in km
+ * @property {string} [time_zone] - IANA time zone string e.g. 'America/New_York'
+ */
+
+/**
+ * @typedef {Object} GeoCode
+ * @property {string|null} state - ISO code for the state/subdivision e.g. 'CA'
+ * @property {string|null} country - ISO country code e.g. 'US'
+ * @property {string|null} continent - Continent code e.g. 'NA'
+ */
+
+/**
+ * @typedef {Object} GeoResult
+ * @property {string|null} [city] - City name e.g. 'San Francisco'
+ * @property {string|null} [state] - State or subdivision name e.g. 'California'
+ * @property {string|null} [country] - Country name e.g. 'United States'
+ * @property {string|null} [continent] - Continent name e.g. 'North America'
+ * @property {string|null} [postal] - Postal / zip code e.g. '94103'
+ * @property {GeoLocation} [location] - Lat/lng and time zone
+ * @property {GeoCode} [code] - ISO codes for state, country, and continent
+ * @property {string} [error] - Set to 'NA' when no data is found for the IP
+ * @property {string} [ip] - The original IP address (only present when error is set)
+ */
+
+/**
+ * Returns full geo location data for a given IP address.
+ * Works fully offline using the bundled GeoLite2 database.
+ * Supports both IPv4 and IPv6.
+ *
+ * @param {string} ip - IPv4 or IPv6 address to look up e.g. '134.209.184.245'
+ * @returns {GeoResult} Structured location data, or `{ error: 'NA', ip }` if not found
+ *
+ * @example
+ * const geo = require('offline-geo-from-ip');
+ * geo.allData('134.209.184.245');
+ * // { city: 'London', state: 'England', country: 'United Kingdom', ... }
  */
 function allData(ip) {
-    // try primary lookup
-    let geodata = city.getGeoDataSync(ip);
+    // Reject anything that isn't a valid IP address (IPv4 or IPv6)
+    if (!ip || !maxmind.validate(ip)) {
+        return { error: 'NA', ip: ip };
+    }
 
-    // fallback: retry with x.x.x.0 if city is missing and it's IPv4
-    // issue pointed out here -> https://github.com/PaddeK/node-maxmind-db?tab=readme-ov-file#warning
-    if ((!geodata || !geodata.city) && isIPv4(ip)) {
-        const fallbackIp = replaceLastIPv4OctetWithZero(ip);
-        if (fallbackIp !== ip) {
-            const fallbackData = city.getGeoDataSync(fallbackIp);
-            if (fallbackData && fallbackData.city) {
-                geodata = fallbackData; // use fallback data only if it adds city
-            }
-        }
+    // Query the local database — returns null if the IP has no record
+    const geodata = db.get(ip);
+
+    if (!geodata) {
+        return { error: 'NA', ip: ip };
     }
 
     const result = {
         code: {}
     };
-
-    if (!geodata) {
-        result.error = 'NA';
-        result.ip = ip;
-        return result;
-    }
 
     result.city = geodata.city?.names?.en || null;
 
@@ -70,24 +99,56 @@ function allData(ip) {
 }
 
 /**
- * Returns true if given IP is valid IPv4
- * @param {string} ip
- * @returns {boolean}
+ * Returns the city name for a given IP address.
+ *
+ * @param {string} ip - IPv4 or IPv6 address e.g. '134.209.184.245'
+ * @returns {string|null} City name, or null if not found
+ *
+ * @example
+ * geo.city('134.209.184.245'); // 'London'
  */
-function isIPv4(ip) {
-    return /^\d{1,3}(\.\d{1,3}){3}$/.test(ip);
+function city(ip) {
+    return allData(ip).city || null;
 }
 
 /**
- * Replaces the last octet of an IPv4 address with '0'
- * @param {string} ip
- * @returns {string}
+ * Returns the country name for a given IP address.
+ *
+ * @param {string} ip - IPv4 or IPv6 address e.g. '134.209.184.245'
+ * @returns {string|null} Country name, or null if not found
+ *
+ * @example
+ * geo.country('134.209.184.245'); // 'United Kingdom'
  */
-function replaceLastIPv4OctetWithZero(ip) {
-    if (!isIPv4(ip)) return ip;
-    const parts = ip.split('.');
-    parts[3] = '0';
-    return parts.join('.');
+function country(ip) {
+    return allData(ip).country || null;
 }
 
-module.exports.allData = allData;
+/**
+ * Returns the state (subdivision) name for a given IP address.
+ *
+ * @param {string} ip - IPv4 or IPv6 address e.g. '134.209.184.245'
+ * @returns {string|null} State/subdivision name, or null if not found
+ *
+ * @example
+ * geo.state('134.209.184.245'); // 'England'
+ */
+function state(ip) {
+    return allData(ip).state || null;
+}
+
+/**
+ * Returns the location object (lat/lng, accuracy radius, time zone) for a given IP address.
+ *
+ * @param {string} ip - IPv4 or IPv6 address e.g. '134.209.184.245'
+ * @returns {GeoLocation|null} Location object, or null if not found
+ *
+ * @example
+ * geo.location('134.209.184.245');
+ * // { latitude: 51.5, longitude: -0.13, accuracy_radius: 20, time_zone: 'Europe/London' }
+ */
+function location(ip) {
+    return allData(ip).location || null;
+}
+
+module.exports = { allData, city, country, state, location };

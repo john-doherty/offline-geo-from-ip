@@ -2,8 +2,6 @@
 
 Get geo location information from an IP address without an internet connection.
 
-_This is a modified version of [geo-from-ip](https://github.com/VikramTiwari/geo-from-ip) that includes a local database_.
-
 ## Installation
 
 ```sh
@@ -13,10 +11,10 @@ npm install --save offline-geo-from-ip
 ## Usage
 
 ```javascript
-var geoIP = require('offline-geo-from-ip');
+var geo = require('offline-geo-from-ip');
 
-console.log(geoIP.allData('199.188.195.120'));
-
+// Full data for an IP
+console.log(geo.allData('199.188.195.120'));
 /*
 {
   code: { state: 'CA', country: 'US', continent: 'NA' },
@@ -25,8 +23,7 @@ console.log(geoIP.allData('199.188.195.120'));
   country: 'United States',
   continent: 'North America',
   postal: '94103',
-  location:
-  {
+  location: {
     accuracy_radius: 10,
     latitude: 37.7758,
     longitude: -122.4128,
@@ -34,12 +31,30 @@ console.log(geoIP.allData('199.188.195.120'));
     time_zone: 'America/Los_Angeles'
   }
 }
- */
+*/
+
+// Convenience helpers (return a single value or null)
+geo.city('199.188.195.120');     // 'San Francisco'
+geo.country('199.188.195.120');  // 'United States'
+geo.state('199.188.195.120');    // 'California'
+geo.location('199.188.195.120'); // { latitude: 37.7758, longitude: -122.4128, ... }
 ```
 
-## Credits
+## Updating the Database
 
-Original version created by [Vikram Tiwari](https://vikramtiwari.com)
+The library ships with a bundled GeoLite2-City database and works **fully offline with no API key required**.
+
+To refresh the database with the latest data from MaxMind:
+
+1. Create a free MaxMind account at https://www.maxmind.com/en/geolite2/signup
+2. Generate a license key under **Services → Manage License Keys** in your account portal
+3. Run the update script with your credentials:
+
+```sh
+MAXMIND_ACCOUNT_ID=123456 MAXMIND_LICENSE_KEY=your_key npm run update-db
+```
+
+MaxMind releases updated databases weekly. You are only required to re-run this if you want fresher IP data — the bundled database will continue to work indefinitely without it.
 
 ## License
 
